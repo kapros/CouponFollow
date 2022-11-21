@@ -1,70 +1,37 @@
+using CouponFollow.TestTask.Framework;
 using CouponFollow.TestTask.PageObjects;
 using FluentAssert;
-using Microsoft.Playwright;
 using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace CouponFollow.TestTask
 {
-    [NonParallelizable]
+    [Parallelizable(ParallelScope.Self)]
     [TestFixture("Chromium", "Galaxy S8")]
     [TestFixture("Webkit", "iPhone 13")]
     [TestFixture("Chromium", "Desktop Chrome")]
-    public class MainPageTests
+    public class MainPageTests : BaseTest
     {
-        private IPlaywright _playwright;
-        private IBrowser _browserContext;
-        private IPage _page;
         private MainPage _mainPage;
-        private readonly string _browser;
-        private readonly string _deviceName;
-        private BrowserNewContextOptions _device;
-
-        public MainPageTests(string browser, string device)
+        public MainPageTests(string browser, string device) : base(browser, device)
         {
-            _browser = browser;
-            _deviceName = device;
         }
-
-        [OneTimeSetUp]
-        public async Task BeforeAllTests()
-        {
-            _playwright = await Playwright.CreateAsync();
-            _device = _playwright.Devices[_deviceName];
-            _browserContext = await _playwright[_browser].LaunchAsync(new BrowserTypeLaunchOptions { Headless = false });
-        }
-
         [SetUp]
-        public async Task BeforeEachTest()
+        public async Task Setup()
         {
-            _page = await (await _browserContext.NewContextAsync(_device)).NewPageAsync();
-            var mainPage = new MainPage(_page);
+            var mainPage = new MainPage(Page);
             await mainPage.Visit();
             _mainPage = mainPage;
         }
 
-        [TearDown]
-        public async Task AfterEachTest()
-        {
-            await _page.CloseAsync();
-            _page = null;
-        }
-
-        [OneTimeTearDown]
-        public async Task AfterAllTests()
-        {
-            await _browserContext.CloseAsync();
-            _playwright.Dispose();
-        }
-
         [Test]
-        public void Should_show_3_Top_Deals_from_3_6_or_9()
+        public async Task Should_show_3_Top_Deals_from_3_6_or_9()
         {
-            var topDealCoupons = _mainPage.GetTopDealCoupons();
+            var topDealCoupons = await _mainPage.GetTopDealCoupons();
             topDealCoupons.Count.ShouldBeGreaterThanOrEqualTo(3);
             (topDealCoupons.Count % 3).ShouldBeEqualTo(0);
-            topDealCoupons.Count(x => x.IsInView().Result).ShouldBeEqualTo(3);
+            (await topDealCoupons.CountAsync(async x => await x.IsInView())).ShouldBeEqualTo(3);
         }
 
         [Test]
@@ -76,27 +43,27 @@ namespace CouponFollow.TestTask
         }
 
         [Test]
-        public void Should_have_unique_Staff_Picks()
+        public async Task Should_have_unique_Staff_Picks()
         {
-            var staffPicks = _mainPage.GetStaffPickCoupons();
+            var staffPicks = await _mainPage.GetStaffPickCoupons();
             var count = staffPicks.Count;
-            var details = staffPicks.Select(x => x.GetCoupon().Result).ToList();
+            var details = staffPicks.Select(async x => await x.GetCoupon()).ToList();
             details.Distinct().Count().ShouldBeEqualTo(count);
         }
 
         [Test]
         public async Task Should_take_to_stores_website()
         {
-            const string searchPhrase = "Nike";
-            const string expectedStoreWebsite = "nike.com";
-            const string expectedPopupUrl = "https://couponfollow.com/site/nike.com";
-            const string expectedStoreDestinationUrl = "https://www.nike.com/";
+            const string searchPhrase = Data.SEARCH_PHRASE;
+            const string expectedStoreWebsite = Data.EXPECTED_STORE_WEBSITE;
+            const string expectedStoreDestinationUrl = Data.NIKE_TARGET_PAGE;
+            var expectedPopupUrl = Data.ExpectedPopupUrl;
             var searchResults = await _mainPage.SearchFor(searchPhrase);
             var firstResult = searchResults.First();
             var storeName = await firstResult.GetStoreName();
             var storeWebsite = await firstResult.GetStoreWebsite();
             var storePage = await firstResult.EnterStore();
-            var firstCoupon = storePage.GetAllCoupons().First();
+            var firstCoupon = (await storePage.GetAllCoupons()).First();
             var (externalPage, popup) = await firstCoupon.FollowCoupon();
             storeName.ShouldContain(searchPhrase);
             storeWebsite.ShouldBeEqualTo(expectedStoreWebsite);

@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace CouponFollow.TestTask.PageObjects.DomainObjects
 {
@@ -34,5 +35,6 @@ namespace CouponFollow.TestTask.PageObjects.DomainObjects
         }
 
         public static implicit operator Deal(string s) => new(s);
+        public static implicit operator Deal(Task<string> s) => new(s.Result);
     }
 }

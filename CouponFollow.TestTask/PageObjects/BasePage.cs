@@ -14,9 +14,9 @@ namespace CouponFollow.TestTask.PageObjects
 
         public string GetUrl() => Page.Url;
 
-        public async Task<string> GetTitle()
+        public Task<string> GetTitle()
         {
-            return await Page.TitleAsync();
+            return Page.TitleAsync();
         }
     }
 }

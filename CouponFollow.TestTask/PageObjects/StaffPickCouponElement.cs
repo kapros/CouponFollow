@@ -16,9 +16,9 @@ namespace CouponFollow.TestTask.PageObjects
             _locator = locator;
         }
 
-        public async Task<string> GetMerchantName() => await _locator.Locator("css=.merch").TextContentAsync();
+        public Task<string> GetMerchantName() => _locator.Locator("css=.merch").TextContentAsync();
 
-        public async Task<Deal> GetDeal() => await _locator.Locator("css=p.title").TextContentAsync();
+        public Task<Deal> GetDeal() => Task.FromResult((Deal)_locator.Locator("css=p.title").TextContentAsync());
 
         public async Task<StaffPickCoupon> GetCoupon()
         {
@@ -29,10 +29,10 @@ namespace CouponFollow.TestTask.PageObjects
             };
         }
 
-        public static IReadOnlyCollection<StaffPickCouponElement> Get(IPage page)
+        public static async Task<IReadOnlyCollection<StaffPickCouponElement>> Get(IPage page)
         {
             var locator = page.Locator("css=div.staff-pick");
-            var list = locator.AsEnumerable().Select(x => new StaffPickCouponElement(x)).ToList().AsReadOnly();
+            var list = (await locator.AsEnumerableAsync().Select(x => new StaffPickCouponElement(x)).ToListAsync()).AsReadOnly();
             return list;
         }
     }

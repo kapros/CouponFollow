@@ -12,8 +12,8 @@ namespace CouponFollow.TestTask.PageObjects
             _previousPage = previousPage;
         }
 
-        public async Task GoBack() => await Page.GoBackAsync();
+        public Task GoBack() => Page.GoBackAsync();
 
-        public async Task VisitPreviousPage() => await Page.GotoAsync(_previousPage);
+        public Task VisitPreviousPage() => Page.GotoAsync(_previousPage);
     }
 }

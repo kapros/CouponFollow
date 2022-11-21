@@ -1,6 +1,7 @@
 ﻿using CouponFollow.TestTask.PageObjects.DomainObjects;
 using Microsoft.Playwright;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CouponFollow.TestTask.PageObjects
 {
@@ -10,7 +11,7 @@ namespace CouponFollow.TestTask.PageObjects
         {
         }
 
-        public IReadOnlyCollection<StoreCoupon> GetAllCoupons()
+        public Task<IReadOnlyCollection<StoreCoupon>> GetAllCoupons()
         {
             var results = StoreCoupon.Get(Page);
             return results;

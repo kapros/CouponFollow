@@ -21,10 +21,10 @@ namespace CouponFollow.TestTask.PageObjects.DomainObjects
             return boundingBox.X > 0;
         }
 
-        public static IReadOnlyCollection<TopDealCoupon> Get(IPage page)
+        public async static Task<IReadOnlyCollection<TopDealCoupon>> Get(IPage page)
         {
             var locator = page.Locator("css=div.top-deal.swiper-slide:not(.swiper-slide-duplicate)");
-            var list = locator.AsEnumerable().Select(x => new TopDealCoupon(x)).ToList().AsReadOnly();
+            var list = (await locator.AsEnumerableAsync().Select(x => new TopDealCoupon(x)).ToListAsync()).AsReadOnly();
             return list;
         }
     }

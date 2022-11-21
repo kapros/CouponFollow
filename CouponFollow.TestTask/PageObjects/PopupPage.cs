@@ -12,9 +12,9 @@ namespace CouponFollow.TestTask.PageObjects
             _page = page;
         }
 
-        public async Task<string> GetTitle()
+        public Task<string> GetTitle()
         {
-            return await _page.TitleAsync();
+            return _page.TitleAsync();
         }
 
         public string GetUrl()
@@ -22,9 +22,9 @@ namespace CouponFollow.TestTask.PageObjects
             return _page.Url;
         }
 
-        public async Task ClosePage()
+        public Task ClosePage()
         {
-            await _page.CloseAsync();
+            return _page.CloseAsync();
         }
     }
 }

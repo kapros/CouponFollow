@@ -21,28 +21,28 @@ namespace CouponFollow.TestTask.PageObjects
             _openSearchBoxLocator = Page.Locator("css=#openSearch,input.search-field");
         }
 
-        public async Task Visit()
+        public Task Visit()
         {
-            await Page.GotoAsync(MAIN_PAGE_URL);
+            return Page.GotoAsync(MAIN_PAGE_URL);
         }
 
-        public IReadOnlyCollection<TopDealCoupon> GetTopDealCoupons()
-            => TopDealCoupon.Get(Page);
+        public Task<int> GetTrendingCoupons()
+            => _trendingCouponsLocator.CountAsync();
 
-        public async Task<int> GetTrendingCoupons()
-            => await _trendingCouponsLocator.CountAsync();
+        public Task<IReadOnlyCollection<TopDealCoupon>> GetTopDealCoupons()
+            => TopDealCoupon.Get(Page);
 
         public async Task<IReadOnlyCollection<SearchResultElement>> SearchFor(string search)
         {
-            await _openSearchBoxLocator.AsEnumerable().First(x => x.IsVisibleAsync().Result).Nth(0).ClickAsync();
-            var searchBox = _searchBoxLocator.AsEnumerable().First(x => x.IsVisibleAsync().Result).Nth(0);
+            await (await _openSearchBoxLocator.AsEnumerableAsync().FirstAwaitAsync(async x => await x.IsVisibleAsync())).Nth(0).ClickAsync();
+            var searchBox = (await _searchBoxLocator.AsEnumerableAsync().FirstAwaitAsync(async x => await x.IsVisibleAsync())).Nth(0);
             await searchBox.ClickAsync();
             await searchBox.TypeAsync(search, new LocatorTypeOptions { Delay = 100 });
-            var results = SearchResultElement.Get(Page);
-            return await Task.FromResult(results);
+            var results = await SearchResultElement.Get(Page);
+            return results;
         }
 
-        public IReadOnlyCollection<StaffPickCouponElement> GetStaffPickCoupons()
+        public Task<IReadOnlyCollection<StaffPickCouponElement>> GetStaffPickCoupons()
         {
             return StaffPickCouponElement.Get(Page);
         }

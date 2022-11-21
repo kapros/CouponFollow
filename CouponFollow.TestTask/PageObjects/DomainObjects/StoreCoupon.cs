@@ -31,13 +31,13 @@ namespace CouponFollow.TestTask.PageObjects.DomainObjects
             _locator.Page.BringToFrontAsync();
         }
 
-        public static IReadOnlyCollection<StoreCoupon> Get(IPage page)
+        public async static Task<IReadOnlyCollection<StoreCoupon>> Get(IPage page)
         {
             var locator = page.Locator("css=div.deal,article.type-deal");
             try
             {
                 locator.Nth(0).WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 5000 }).Wait();
-                var list = locator.AsEnumerable().Select(x => new StoreCoupon(x)).ToList().AsReadOnly();
+                var list = (await locator.AsEnumerableAsync().Select(x => new StoreCoupon(x)).ToListAsync()).AsReadOnly();
                 return list;
             }
             catch (AggregateException ex) when (ex.InnerExceptions.Any(x => x is TimeoutException))

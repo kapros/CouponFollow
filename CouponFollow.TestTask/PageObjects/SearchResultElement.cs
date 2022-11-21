@@ -16,8 +16,8 @@ namespace CouponFollow.TestTask.PageObjects
             _locator = locator;
         }
 
-        public async Task<string> GetStoreName() => await _locator.Locator("css=p.name").InnerTextAsync();
-        public async Task<string> GetStoreWebsite() => await _locator.Locator("css=p.domain").InnerTextAsync();
+        public Task<string> GetStoreName() => _locator.Locator("css=p.name").InnerTextAsync();
+        public Task<string> GetStoreWebsite() => _locator.Locator("css=p.domain").InnerTextAsync();
 
         public async Task<StorePage> EnterStore()
         {
@@ -25,13 +25,13 @@ namespace CouponFollow.TestTask.PageObjects
             return new StorePage(_locator.Page);
         }
 
-        public static IReadOnlyCollection<SearchResultElement> Get(IPage page)
+        public async static Task<IReadOnlyCollection<SearchResultElement>> Get(IPage page)
         {
             var locator = page.Locator("css=a.mobile-suggestion-item,a.suggestion-item");
             try
             {
                 locator.Nth(0).WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 5000 }).Wait();
-                var list = locator.AsEnumerable().Select(x => new SearchResultElement(x)).ToList().AsReadOnly();
+                var list = (await locator.AsEnumerableAsync().Select(x => new SearchResultElement(x)).ToListAsync()).AsReadOnly();
                 return list;
             }
             catch (AggregateException ex) when (ex.InnerExceptions.Any(x => x is TimeoutException))
