@@ -18,7 +18,7 @@ namespace CouponFollow.TestTask.PageObjects
 
         public Task<string> GetMerchantName() => _locator.Locator("css=.merch").TextContentAsync();
 
-        public Task<Deal> GetDeal() => Task.FromResult((Deal)_locator.Locator("css=p.title").TextContentAsync());
+        public async Task<Deal> GetDeal() => await _locator.Locator("css=p.title").TextContentAsync();
 
         public async Task<StaffPickCoupon> GetCoupon()
         {
